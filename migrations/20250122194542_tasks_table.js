@@ -10,11 +10,14 @@ export function up(knex) {
         table.string('status', 50).defaultTo('pending');
         table.string('priority', 50).defaultTo('medium');
         table.timestamp('created_at').defaultTo(knex.fn.now());
-        table.timestamp('updated_at').defaultTo(knex.fn.now()).onUpdate(knex.fn.now());
+        table.timestamp('updated_at').defaultTo(knex.fn.now());
         table.integer('assigned_user_id').unsigned().nullable();
         table.foreign('assigned_user_id').references('users.id')
         .onUpdate('CASCADE').onDelete('CASCADE');
-    })
+
+    }).then(function() {
+        return knex.raw('ALTER TABLE tasks MODIFY updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP');
+      });
 };
 
 

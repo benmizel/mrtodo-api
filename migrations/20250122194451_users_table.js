@@ -7,7 +7,6 @@ export function up(knex) {
         table.increments('id').primary();
         table.string('username', 100).unique().notNullable();
         table.string('password', 255).notNullable();
-        table.string('password');
         table.string('role', 50).defaultTo('user');
     })
 };
