@@ -61,10 +61,10 @@ const login = async (req, res) => {
 
   try {
     const user = await knex("users").where("username", username).first();
-    if (!user) return res.status(400).send("Invalid username or password");
+    if (!user) return res.status(400).send("Invalid username");
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).send("Invalid username or password");
+    if (!isMatch) return res.status(400).send("Invalid password");
 
     const accessToken = jwt.sign(
       { id: user.id, username: user.username, role: user.role },
@@ -119,21 +119,22 @@ const refreshToken = async (req, res) => {
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      maxAge: 30 * 24 * 60 * 60 * 1000, 
     });
 
     res.json({ accessToken: newAccessToken });
 
   } catch (error) {
-    console.error("error refreshing token:", error);
+    console.error("Error refreshing token:", error);
     res.status(403).send("Invalid or expired refresh token. Please log in again.");
   }
-}
+};
 
 const logout = (req, res) => {
   res.clearCookie("refreshToken", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
+    expires: new Date(0),
   });
   res.status(200).send("Logged out successfully");
 };
