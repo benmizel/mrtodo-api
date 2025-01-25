@@ -2,6 +2,8 @@ import initKnex from "knex";
 import configuration from "../knexfile.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { blacklistRefreshToken, isTokenBlacklisted, generateToken } from "../utils/auth-utils.js";
+
 const knex = initKnex(configuration);
 
 const signUp = async (req, res) => {
@@ -22,7 +24,7 @@ const signUp = async (req, res) => {
 
   const userExists = await knex("users").where("username", username).first();
   if (userExists) {
-    return res.status(400).send("Username is already taken");
+    return res.status(409).send("Username is already taken");
   }
 
   if (!passwordRegex.test(password)) {
@@ -61,30 +63,22 @@ const login = async (req, res) => {
 
   try {
     const user = await knex("users").where("username", username).first();
-    if (!user) return res.status(400).send("Invalid username");
+    if (!user) return res.status(401).send("Invalid username");
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).send("Invalid password");
+    if (!isMatch) return res.status(401).send("Invalid password");
 
-    const accessToken = jwt.sign(
-      { id: user.id, username: user.username, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
+    const newAccessToken = generateToken(user, process.env.JWT_SECRET, '1h');
 
-    const refreshToken= jwt.sign(
-      { id: user.id, username: user.username, role: user.role },
-      process.env.JWT_SECRET_REFRESH,
-      { expiresIn: "30d" }
-    );
+    const newRefreshToken = generateToken(user, process.env.JWT_SECRET_REFRESH, '30d');
 
-    res.cookie("refreshToken", refreshToken, {
+    res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true, 
       secure: process.env.NODE_ENV === "production", 
       maxAge: 30 * 24 * 60 * 60 * 1000, 
     });
 
-    res.json({ accessToken });
+    res.json({ accessToken: newAccessToken });
   } catch (error) {
     console.error(error);
     res.status(500).send("Error logging in");
@@ -99,22 +93,19 @@ const refreshToken = async (req, res) => {
   }
 
   try {
+
+    if (await isTokenBlacklisted(refreshToken)) {
+      return res.status(401).send("Refresh token has been revoked. Please log in again.");
+    }
+
     const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET_REFRESH);
 
     const user = await knex("users").where("id", decoded.id).first();
     if (!user) return res.status(403).send("User not found");
 
-    const newAccessToken = jwt.sign(
-      { id: decoded.id, username: decoded.username, role: decoded.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
+    const newAccessToken = generateToken(user, process.env.JWT_SECRET, '1h');
 
-    const newRefreshToken = jwt.sign(
-      { id: decoded.id, username: decoded.username, role: decoded.role },
-      process.env.JWT_SECRET_REFRESH,
-      { expiresIn: "30d" }
-    );
+    const newRefreshToken = generateToken(user, process.env.JWT_SECRET_REFRESH, '30d');
 
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
@@ -130,12 +121,19 @@ const refreshToken = async (req, res) => {
   }
 };
 
-const logout = (req, res) => {
+const logout = async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+
+  if (refreshToken) {
+    await blacklistRefreshToken(refreshToken);
+  }
+
   res.clearCookie("refreshToken", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     expires: new Date(0),
   });
+
   res.status(200).send("Logged out successfully");
 };
 
