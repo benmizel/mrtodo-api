@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import authRouter from "./routes/auth-routes";
 import userRouter from "./routes/user-routes";
+import taskRouter from "./routes/tasks-routes";
 
 
 const app = express();

@@ -1,13 +1,16 @@
 import express from "express";
 import * as taskController from "../controllers/task-controller.js";
+import { authenticateJWT } from "../middleware/auth-middleware.js";
 const taskRouter = express.Router();
 
-authRouter.route("/add").post(taskController.addTask);
+taskRouter.use(authenticateJWT);
 
-authRouter.route("/update").post(taskController.updateTask);
+taskRouter.route("/add").post(taskController.addTask);
 
-authRouter.route("/delete").post(taskController.deleteTask);
+taskRouter.route("/update").post(taskController.updateTask);
 
-authRouter.route("/").get(taskController.getTasks);
+taskRouter.route("/delete").post(taskController.deleteTask);
+
+taskRouter.route("/").get(taskController.getTasks);
 
 export default authRouter;
