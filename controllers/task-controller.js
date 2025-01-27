@@ -4,7 +4,7 @@ import configuration from "../knexfile.js";
 const knex = initKnex(configuration);
 
 const addTask = async (req, res) => {
-  const { title, description, assigned_user_id, priority, status } = req.body;
+  const { title, description, priority, status } = req.body;
   const assignedUserId = req.user.id;
 
   if (!title) {
@@ -12,17 +12,20 @@ const addTask = async (req, res) => {
   }
 
   try {
-    const [task] = await knex("tasks")
+    const result = await knex("tasks")
       .insert({
         title,
         description,
         assigned_user_id: assignedUserId,
         priority,
         status,
-      })
-      .returning("*");
+      });
 
-    res.status(201).json(task);
+      const addedTask = result[0];
+
+      const task = await knex("tasks").where("id", addedTask).andWhere("assigned_user_id", assignedUserId).first();
+
+    return res.status(201).json(task);
   } catch (error) {
     console.error(error);
     res
@@ -32,7 +35,8 @@ const addTask = async (req, res) => {
 };
 
 const updateTask = async (req, res) => {
-  const { id, title, description, status, priority } = req.body;
+  const { title, description, status, priority } = req.body;
+  const { id } = req.params;
   const userId = req.user.id;
 
   try {
@@ -69,7 +73,7 @@ const updateTask = async (req, res) => {
 };
 
 const deleteTask = async (req, res) => {
-  const { id } = req.body;
+  const { id } = req.params;
   const userId = req.user.id;
 
   try {

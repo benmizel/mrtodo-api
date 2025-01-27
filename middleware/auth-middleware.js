@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import initKnex from "knex";
 import configuration from "../knexfile.js";
-import { isTokenBlacklisted, generateToken } from "../utils/auth-utils";
+import { isTokenBlacklisted, generateToken } from "../utils/auth-utils.js";
 const knex = initKnex(configuration);
 
 const authenticateJWT = async (req, res, next) => {

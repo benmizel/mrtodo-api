@@ -38,12 +38,13 @@ const signUp = async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const [user] = await knex("users")
+    await knex("users")
       .insert({
         username,
         password: hashedPassword,
-      })
-      .returning("*");
+      });
+
+    const user = await knex("users").where("username", username).first();
 
     res.status(201).json({ id: user.id, username: user.username });
   } catch (error) {
@@ -76,6 +77,7 @@ const login = async (req, res) => {
       httpOnly: true, 
       secure: process.env.NODE_ENV === "production", 
       maxAge: 30 * 24 * 60 * 60 * 1000, 
+      sameSite: "None",
     });
 
     res.json({ accessToken: newAccessToken });
@@ -111,6 +113,7 @@ const refreshToken = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: 30 * 24 * 60 * 60 * 1000, 
+      sameSite: "None",
     });
 
     res.json({ accessToken: newAccessToken });

@@ -7,10 +7,10 @@ taskRouter.use(authenticateJWT);
 
 taskRouter.route("/add").post(taskController.addTask);
 
-taskRouter.route("/update").post(taskController.updateTask);
+taskRouter.route("/update/:id").put(taskController.updateTask);
 
-taskRouter.route("/delete").post(taskController.deleteTask);
+taskRouter.route("/delete/:id").delete(taskController.deleteTask);
 
-taskRouter.route("/").get(taskController.getTasks);
+taskRouter.route("/").get(taskController.getTasksByUser);
 
-export default authRouter;
+export default taskRouter;
