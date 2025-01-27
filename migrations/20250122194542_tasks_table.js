@@ -11,7 +11,7 @@ export function up(knex) {
         table.string('priority', 50).defaultTo('medium');
         table.timestamp('created_at').defaultTo(knex.fn.now());
         table.timestamp('updated_at').defaultTo(knex.fn.now());
-        table.integer('assigned_user_id').unsigned().nullable();
+        table.integer('assigned_user_id').unsigned().notNullable();
         table.foreign('assigned_user_id').references('users.id')
         .onUpdate('CASCADE').onDelete('CASCADE');
 
@@ -26,6 +26,6 @@ export function up(knex) {
  * @returns { Promise<void> }
  */
 export function down(knex) {
-    return knex.schema.dropTableIfExists('taskss');
+    return knex.schema.dropTableIfExists('tasks');
 };
 
