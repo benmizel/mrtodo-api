@@ -13,4 +13,6 @@ taskRouter.route("/delete/:id").delete(taskController.deleteTask);
 
 taskRouter.route("/").get(taskController.getTasksByUser);
 
+taskRouter.route("/:id").get(taskController.getTaskByUserAndTaskId);
+
 export default taskRouter;

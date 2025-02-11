@@ -12,18 +12,20 @@ const addTask = async (req, res) => {
   }
 
   try {
-    const result = await knex("tasks")
-      .insert({
-        title,
-        description,
-        assigned_user_id: assignedUserId,
-        priority,
-        status,
-      });
+    const result = await knex("tasks").insert({
+      title,
+      description,
+      assigned_user_id: assignedUserId,
+      priority,
+      status,
+    });
 
-      const addedTask = result[0];
+    const addedTask = result[0];
 
-      const task = await knex("tasks").where("id", addedTask).andWhere("assigned_user_id", assignedUserId).first();
+    const task = await knex("tasks")
+      .where("id", addedTask)
+      .andWhere("assigned_user_id", assignedUserId)
+      .first();
 
     return res.status(201).json(task);
   } catch (error) {
@@ -113,4 +115,27 @@ const getTasksByUser = async (req, res) => {
   }
 };
 
-export { addTask, updateTask, deleteTask, getTasksByUser };
+const getTaskByUserAndTaskId = async (req, res) => {
+  const userId = req.user.id;
+  const { id } = req.params;
+
+  try {
+    const task = await knex("tasks")
+      .where("assigned_user_id", userId)
+      .where("id", id);
+    res.json(task);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .send(error.message || "An error occurred while retrieving tasks");
+  }
+};
+
+export {
+  addTask,
+  updateTask,
+  deleteTask,
+  getTasksByUser,
+  getTaskByUserAndTaskId,
+};

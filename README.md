@@ -3,7 +3,7 @@ Mr. To Do API
 
 ## Overview
 
-Aimed at helping families deal with the myriad of tasks that plague everyday life, the Mr. To Do API hanldes login and task data based on a users' specific profile. With CRUD operations and authentication in place, this API is ready to expand to meet any personal task manager app's needs!
+Aimed at helping families deal with the myriad of tasks that plague everyday life, the Mr. To Do API handles task data based on a user's specific profile. With CRUD operations and authentication in place, this API is ready to expand to meet any personal task manager app's needs!
 
 ### Problem
 
@@ -15,13 +15,13 @@ Everyday people who want to have better structure and understanding of all the i
 
 ### Features
 
-- This API has three tables in its database, a user table, a tasks table (with corresponding foreign key to the user table), and a blacklisted tokens table for security.
-- User based functions:
+- This API has three tables in its database: a user table, a tasks table (with a corresponding foreign key to the user table), and a blacklisted tokens table for security.
+- User-based functions:
     - Login
     - Sign Up
     - Logout
     - Delete User
-- Task based functions:
+- Task-based functions:
     - Add a task
     - Update a task
     - Delete a task
@@ -60,7 +60,7 @@ Everyday people who want to have better structure and understanding of all the i
 
 **POST auth/signup**
 
-- Sign up account creation, with JWT for authentication.
+- Sign-up account creation, with JWT for authentication.
 
 Parameters:
 - username: User-provided location as a number
@@ -77,7 +77,7 @@ Response:
 
 **POST /auth/login**
 
-- Existing user can log in if account is already created.
+- Existing user can log in if the account is already created.
 
 Parameters:
 - username: User-provided location as a number
@@ -92,10 +92,10 @@ Response:
 
 **POST /auth/refresh-token**
 
-- Logged in user requests a new refresh token to avoid initial expiration of the inital access token.
+- Logged-in user requests a new refresh token to avoid the initial expiration of the access token.
 
 Parameters:
-- accessToken: taken from cookie and header to prove authentication and reissues appropriate refresh token to keep user logged in.
+- accessToken: taken from the cookie and header to prove authentication and reissue an appropriate refresh token to keep the user logged in.
 
 Response:
 ```
@@ -104,23 +104,11 @@ Response:
 }
 ```
 
-**PUT /auth/logout**
-
-- Logs out active user and removes cookie and accessToken from header.
-
-Parameters:
-- accessToken: taken from cookie and header to prove authentication and clears it when user logs out.
-
-Response:
-```
-"Logged out successfully"
-```
-
 ### User Routes
 
 **DELETE /user**
 
-- Delete a user account and tasks specific to user.
+- Delete a user account and tasks specific to the user.
 
 Parameters:
 - accessToken: taken from cookie and header to prove authentication and clears it when user logs out.
@@ -158,7 +146,7 @@ Response:
 
 **PUT /task/update/:id**
 
-- Update a task. Not all fields are required
+- Update a task. Not all fields are required.
 
 Parameters:
 - title: Title of the task
@@ -185,11 +173,11 @@ Response:
 
 **DELETE /task/delete/:id**
 
-- Delete a task. 
+- Delete a task.
 
 Parameters:
-- task id: taken from a dynamic url for specific task
-- accessToken: taken from cookie and header to prove authentication and makes sure the task deletion is only for their tasks.
+- task id: taken from a dynamic URL for a specific task.
+- accessToken: taken from cookie and header to prove authentication and make sure the task deletion is only for their tasks.
 
 Response:
 ```
@@ -198,7 +186,7 @@ Response:
 
 **GET /task**
 
-- Get all tasks associated to the logged in user. 
+- Get all tasks associated with the logged in user. 
 
 Parameters:
 - accessToken: taken from cookie and header to prove authentication.
@@ -222,17 +210,17 @@ Response:
 ### Auth
 
 - JWT auth
-    - Includes an accessToken that expires in 1 hour and a refresh token that expires in 30 days.
+    - Includes an access token that expires in 1 hour and a refresh token that expires in 30 days.
     - Includes a blacklisted_token database table to make sure previous tokens are not used by others.
-    - Store JWT in the header, remove when a user logs out.
+    - Store JWT in the header, remove it when a user logs out.
 
 ## Future Iterations
 
 - Update backend to deal with families or other groups so that users can view and share tasks among them.
-- The ability to update a user profile and a more unique landing page experience as a result on the front-end.
+- The ability to update a user profile and a more unique landing page experience as a result on the front end.
 - Ability to send email reminders for important tasks.
-- Possible integration with an AI/ML model to help finish tasks more efficiently (Recommendations, patterns, and help families organize a growing list of tasks based on previous history).
+- Possible integration with an AI/ML model to help finish tasks more efficiently (recommendations, patterns, and help families organize a growing list of tasks based on previous history).
 
 ## IMPORTANT
 
-- Please note, any example secrets listed throughout the project (.env.sample, accessTokens mentioned in responses above, etc.) are just examples and are not in use.
+- Please note, any example secrets listed throughout the project (.env.sample, access tokens mentioned in responses above, etc.) are just examples and are not in use.
